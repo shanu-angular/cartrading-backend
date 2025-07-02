@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Trading Chat System Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .debug-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+            flex-shrink: 0;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+
+        .sidebar h3 {
+            color: #2c3e50;
+            margin: 20px 0 15px 0;
+            font-size: 1.1rem;
+        }
+
+        .sidebar h3:first-child {
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: transform 0.2s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .chat-area {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            flex-shrink: 0;
+        }
+
+        .chat-header h3 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .chat-info {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: #ffffff;
+            max-height: calc(100vh - 300px);
+            min-height: 200px;
+        }
+
+        /* Custom scrollbar for messages */
+        .messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .messages::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 70%;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.sent {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.received {
+            background: #f8f9fa;
+            color: #2c3e50;
+            border: 1px solid #e9ecef;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-info {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .message-content {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .typing-indicator {
+            padding: 10px 20px;
+            color: #6c757d;
+            font-style: italic;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .message-input {
+            display: flex;
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .message-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .message-input input:focus {
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 300px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.success {
+            border-left: 4px solid #27ae60;
+        }
+
+        .notification.info {
+            border-left: 4px solid #3498db;
+        }
+
+        .notification.warning {
+            border-left: 4px solid #f39c12;
+        }
+
+        /* Scroll to bottom button */
+        .scroll-to-bottom {
+            position: absolute;
+            bottom: 80px;
+            right: 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-to-bottom:hover {
+            background: #5a67d8;
+            transform: scale(1.1);
+        }
+
+        .scroll-to-bottom.show {
+            display: flex;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                height: 100vh;
+                border-radius: 0;
+                margin: 0;
+            }
+            
+            body {
+                padding: 0;
+            }
+            
+            .main-content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+                max-height: 300px;
+            }
+            
+            .messages {
+                max-height: calc(100vh - 400px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Car Trading Chat System</h1>
+            <p>WebSocket Connection Test</p>
+        </div>
+        
+        <div class="debug-info">
+            Server: <span id="serverUrl">http://localhost:5000</span> | 
+            Socket.IO: <span id="socketVersion">4.7.2</span> | 
+            Status: <span id="debugStatus">Initializing...</span>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <h3>🔐 Connection</h3>
+                <div class="form-group">
+                    <label for="token">Token:</label>
+                    <input type="text" id="token" value="test-token" placeholder="Enter token">
+                </div>
+                <div class="form-group">
+                    <label for="userRole">Role:</label>
+                    <select id="userRole">
+                        <option value="user">User</option>
+                        <option value="seller">Seller</option>
+                        <option value="dealer">Dealer</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="connectSocket()">Connect</button>
+                <button class="btn btn-danger" onclick="disconnectSocket()">Disconnect</button>
+
+                <div id="connectionStatus" class="status disconnected">
+                    ❌ Disconnected
+                </div>
+
+                <h3>💬 Chat</h3>
+                <div class="form-group">
+                    <label for="chatId">Chat ID:</label>
+                    <input type="text" id="chatId" value="general" placeholder="Enter chat ID">
+                </div>
+                <button class="btn btn-success" onclick="joinChat()">Join Chat</button>
+                <button class="btn" onclick="clearMessages()">Clear Messages</button>
+
+                <h3>🔔 Tests</h3>
+                <button class="btn" onclick="testBidNotification()">Test Bid</button>
+                <button class="btn" onclick="testOfferNotification()">Test Offer</button>
+                <button class="btn" onclick="pingServer()">Ping Server</button>
+                <button class="btn" onclick="addTestMessages()">Add Test Messages</button>
+            </div>
+
+            <div class="chat-area">
+                <div class="chat-header">
+                    <h3>Chat Messages</h3>
+                    <div class="chat-info">
+                        <span id="messageCount">0 messages</span> | 
+                        <span id="currentChatDisplay">No chat joined</span>
+                    </div>
+                </div>
+
+                <div class="messages" id="messages">
+                    <div class="message received">
+                        <div class="message-info">System</div>
+                        <div class="message-content">Welcome! Click Connect to start.</div>
+                    </div>
+                </div>
+
+                <button class="scroll-to-bottom" id="scrollToBottom" onclick="scrollToBottom()">
+                    ↓
+                </button>
+
+                <div class="message-input">
+                    <input type="text" id="messageInput" placeholder="Type message..." disabled>
+                    <button class="send-btn" onclick="sendMessage()" disabled id="sendBtn">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let socket = null;
+        let currentChatId = null;
+        let messageCount = 0;
+
+        // Debug logging
+        function log(message, type = 'info') {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            document.getElementById('debugStatus').textContent = message;
+            
+            // Add to chat
+            addMessage('System', message, false, type);
+        }
+
+        // Connect to socket
+        function connectSocket() {
+            const token = document.getElementById('token').value.trim();
+            const role = document.getElementById('userRole').value;
+            
+            if (!token) {
+                log('Please enter a token', 'error');
+                return;
+            }
+
+            log('Attempting to connect...', 'info');
+
+            try {
+                // Disconnect existing connection
+                if (socket) {
+                    socket.disconnect();
+                }
+
+                // Create new connection
+                socket = io('http://localhost:5000', {
+                    auth: {
+                        token: token,
+                        role: role
+                    },
+                    transports: ['websocket', 'polling'],
+                    timeout: 10000,
+                    forceNew: true
+                });
+
+                // Connection events
+                socket.on('connect', () => {
+                    log('Connected successfully!', 'success');
+                    updateConnectionStatus(true);
+                    document.getElementById('messageInput').disabled = false;
+                    document.getElementById('sendBtn').disabled = false;
+                });
+
+                socket.on('connected', (data) => {
+                    log(`Server confirmed: ${data.userName} (${data.userRole})`, 'success');
+                });
+
+                socket.on('disconnect', (reason) => {
+                    log(`Disconnected: ${reason}`, 'warning');
+                    updateConnectionStatus(false);
+                });
+
+                socket.on('connect_error', (error) => {
+                    log(`Connection error: ${error.message}`, 'error');
+                    updateConnectionStatus(false);
+                });
+
+                // Chat events
+                socket.on('message_received', (data) => {
+                    if (data.senderId !== socket.id) {
+                        addMessage(data.senderName, data.message, false);
+                    }
+                });
+
+                socket.on('joined_chat', (data) => {
+                    log(`Joined chat: ${data.chatId}`, 'success');
+                    currentChatId = data.chatId;
+                    document.getElementById('currentChatDisplay').textContent = `Chat: ${data.chatId}`;
+                });
+
+                socket.on('user_joined', (data) => {
+                    addMessage('System', `${data.userName} joined the chat`, false, 'info');
+                });
+
+                socket.on('user_left', (data) => {
+                    addMessage('System', `${data.userName} left the chat`, false, 'info');
+                });
+
+                // Notification events
+                socket.on('bid_notification', (data) => {
+                    addMessage('Notification', `🎯 New bid: $${data.amount} on ${data.carTitle}`, false, 'notification');
+                });
+
+                socket.on('offer_notification', (data) => {
+                    addMessage('Notification', `💰 New offer: $${data.offerAmount} on ${data.carTitle}`, false, 'notification');
+                });
+
+                socket.on('reservation_notification', (data) => {
+                    addMessage('Notification', `📅 New reservation: ${data.type} for ${data.carTitle}`, false, 'notification');
+                });
+
+                socket.on('inspection_notification', (data) => {
+                    addMessage('Notification', `🔍 Inspection ${data.status} for ${data.carTitle}`, false, 'notification');
+                });
+
+                socket.on('pong', (data) => {
+                    log('Pong received - connection healthy', 'success');
+                });
+
+                socket.on('error', (error) => {
+                    log(`Socket error: ${error.message}`, 'error');
+                });
+
+            } catch (error) {
+                log(`Failed to create connection: ${error.message}`, 'error');
+            }
+        }
+
+        // Disconnect socket
+        function disconnectSocket() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+                updateConnectionStatus(false);
+                document.getElementById('messageInput').disabled = true;
+                document.getElementById('sendBtn').disabled = true;
+                log('Disconnected manually', 'info');
+            }
+        }
+
+        // Join chat
+        function joinChat() {
+            const chatId = document.getElementById('chatId').value.trim();
+            
+            if (!socket || !socket.connected) {
+                log('Not connected to server', 'error');
+                return;
+            }
+            
+            if (!chatId) {
+                log('Please enter a chat ID', 'error');
+                return;
+            }
+
+            socket.emit('join_chat', chatId);
+            log(`Joining chat: ${chatId}`, 'info');
+        }
+
+        // Send message
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!socket || !socket.connected) {
+                log('Not connected', 'error');
+                return;
+            }
+            
+            if (!currentChatId) {
+                log('Please join a chat first', 'error');
+                return;
+            }
+            
+            if (!message) {
+                return;
+            }
+
+            socket.emit('send_message', {
+                chatId: currentChatId,
+                message: message
+            });
+
+            addMessage('You', message, true);
+            messageInput.value = '';
+        }
+
+        // Test functions
+        function testBidNotification() {
+            if (!socket || !socket.connected) {
+                log('Not connected', 'error');
+                return;
+            }
+            socket.emit('test_bid_notification');
+            log('Sent test bid notification', 'info');
+        }
+
+        function testOfferNotification() {
+            if (!socket || !socket.connected) {
+                log('Not connected', 'error');
+                return;
+            }
+            socket.emit('test_offer_notification');
+            log('Sent test offer notification', 'info');
+        }
+
+        function pingServer() {
+            if (!socket || !socket.connected) {
+                log('Not connected', 'error');
+                return;
+            }
+            socket.emit('ping');
+            log('Ping sent to server', 'info');
+        }
+
+        function clearMessages() {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = '';
+            messageCount = 0;
+            updateMessageCount();
+            log('Messages cleared', 'info');
+        }
+
+        function addTestMessages() {
+            const testMessages = [
+                'This is a test message to check scrolling',
+                'Another test message with some longer content to see how it wraps',
+                'Testing bid notification: $25,000 for 2020 Toyota Camry',
+                'Testing offer notification: $23,000 for 2019 Honda Accord',
+                'This is message number 5',
+                'This is message number 6',
+                'This is message number 7',
+                'This is message number 8',
+                'This is message number 9',
+                'This is message number 10 - should trigger scrolling'
+            ];
+
+            testMessages.forEach((msg, index) => {
+                setTimeout(() => {
+                    addMessage(`Test User ${index % 3 + 1}`, msg, index % 2 === 0);
+                }, index * 200);
+            });
+        }
+
+        // UI functions
+        function updateConnectionStatus(connected) {
+            const statusDiv = document.getElementById('connectionStatus');
+            if (connected) {
+                statusDiv.className = 'status connected';
+                statusDiv.textContent = '✅ Connected';
+            } else {
+                statusDiv.className = 'status disconnected';
+                statusDiv.textContent = '❌ Disconnected';
+            }
+        }
+
+        function updateMessageCount() {
+            document.getElementById('messageCount').textContent = `${messageCount} messages`;
+        }
+
+        function addMessage(sender, message, isSent, type = 'message') {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+            
+            if (type === 'notification') {
+                messageDiv.style.background = '#fff3cd';
+                messageDiv.style.borderColor = '#ffeaa7';
+            } else if (type === 'error') {
+                messageDiv.style.background = '#f8d7da';
+                messageDiv.style.borderColor = '#f5c6cb';
+            } else if (type === 'success') {
+                messageDiv.style.background = '#d4edda';
+                messageDiv.style.borderColor = '#c3e6cb';
+            }
+            
+            const time = new Date().toLocaleTimeString();
+            messageDiv.innerHTML = `
+                <div class="message-info">${sender} • ${time}</div>
+                <div class="message-content">${message}</div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            messageCount++;
+            updateMessageCount();
+            
+            // Auto scroll to bottom
+            const isScrolledToBottom = messagesDiv.scrollHeight - messagesDiv.clientHeight <= messagesDiv.scrollTop + 1;
+            if (isScrolledToBottom) {
+                scrollToBottom();
+            }
+            
+            // Show/hide scroll to bottom button
+            updateScrollButton();
+        }
+
+        function scrollToBottom() {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            document.getElementById('scrollToBottom').classList.remove('show');
+        }
+
+        function updateScrollButton() {
+            const messagesDiv = document.getElementById('messages');
+            const scrollButton = document.getElementById('scrollToBottom');
+            const isScrolledToBottom = messagesDiv.scrollHeight - messagesDiv.clientHeight <= messagesDiv.scrollTop + 50;
+            
+            if (isScrolledToBottom) {
+                scrollButton.classList.remove('show');
+            } else {
+                scrollButton.classList.add('show');
+            }
+        }
+
+        // Handle Enter key
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Handle scroll events
+        document.getElementById('messages').addEventListener('scroll', updateScrollButton);
+
+        // Initialize
+        log('Chat system initialized. Ready to connect.', 'info');
+        updateMessageCount();
+    </script>
+</body>
+</html>

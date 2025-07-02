@@ -1,0 +1,1810 @@
+{
+  "info": {
+    "name": "Car Trading API - Complete Collection",
+    "description": "Complete API collection for Car Trading Platform with all modules",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/api"
+    },
+    {
+      "key": "auth_token",
+      "value": ""
+    },
+    {
+      "key": "user_id",
+      "value": ""
+    },
+    {
+      "key": "seller_id",
+      "value": ""
+    },
+    {
+      "key": "dealer_id",
+      "value": ""
+    },
+    {
+      "key": "mechanic_id",
+      "value": ""
+    },
+    {
+      "key": "towing_id",
+      "value": ""
+    },
+    {
+      "key": "car_id",
+      "value": ""
+    },
+    {
+      "key": "chat_id",
+      "value": ""
+    },
+    {
+      "key": "bid_id",
+      "value": ""
+    },
+    {
+      "key": "offer_id",
+      "value": ""
+    },
+    {
+      "key": "reservation_id",
+      "value": ""
+    },
+    {
+      "key": "inquiry_id",
+      "value": ""
+    },
+    {
+      "key": "inspection_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+1234567890\",\n  \"role\": \"user\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/register",
+              "host": ["{{base_url}}"],
+              "path": ["users", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('auth_token', response.data.token);",
+                  "    pm.environment.set('user_id', response.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/login",
+              "host": ["{{base_url}}"],
+              "path": ["users", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('auth_token', response.data.token);",
+                  "    pm.environment.set('user_id', response.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/users/profile",
+              "host": ["{{base_url}}"],
+              "path": ["users", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe Updated\",\n  \"phone\": \"+1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/profile",
+              "host": ["{{base_url}}"],
+              "path": ["users", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Car Management",
+      "item": [
+        {
+          "name": "Get All Cars",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/cars?page=1&limit=12&make=Toyota&minPrice=10000&maxPrice=50000",
+              "host": ["{{base_url}}"],
+              "path": ["cars"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "12" },
+                { "key": "make", "value": "Toyota" },
+                { "key": "minPrice", "value": "10000" },
+                { "key": "maxPrice", "value": "50000" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Featured Cars",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/cars/featured",
+              "host": ["{{base_url}}"],
+              "path": ["cars", "featured"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Car",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/cars/{{car_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["cars", "{{car_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Car Listing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"2020 Toyota Camry\",\n  \"make\": \"Toyota\",\n  \"model\": \"Camry\",\n  \"year\": 2020,\n  \"price\": 25000,\n  \"mileage\": 15000,\n  \"fuelType\": \"Gasoline\",\n  \"transmission\": \"Automatic\",\n  \"bodyType\": \"Sedan\",\n  \"color\": \"White\",\n  \"description\": \"Excellent condition Toyota Camry\",\n  \"images\": [\n    \"https://example.com/image1.jpg\",\n    \"https://example.com/image2.jpg\"\n  ],\n  \"features\": [\n    \"Air Conditioning\",\n    \"Power Steering\",\n    \"ABS\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cars",
+              "host": ["{{base_url}}"],
+              "path": ["cars"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('car_id', response.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Car",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 24000,\n  \"description\": \"Updated description\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cars/{{car_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["cars", "{{car_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Car",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/cars/{{car_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["cars", "{{car_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Seller Module",
+      "item": [
+        {
+          "name": "Create Seller Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"Auto Sales Pro\",\n  \"businessAddress\": \"123 Main St, New York, NY\",\n  \"businessPhone\": \"+1234567890\",\n  \"licenseNumber\": \"LIC123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/sellers/profile",
+              "host": ["{{base_url}}"],
+              "path": ["sellers", "profile"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('seller_id', response.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Seller Profile",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/sellers/profile",
+              "host": ["{{base_url}}"],
+              "path": ["sellers", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Seller Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"Auto Sales Pro Updated\",\n  \"businessAddress\": \"456 Updated St, New York, NY\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/sellers/profile",
+              "host": ["{{base_url}}"],
+              "path": ["sellers", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Get Seller Cars",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/sellers/cars",
+              "host": ["{{base_url}}"],
+              "path": ["sellers", "cars"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dealer Module",
+      "item": [
+        {
+          "name": "Register Dealer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Dealer\",\n  \"email\": \"dealer@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+1234567890\",\n  \"businessName\": \"Premium Auto Dealers\",\n  \"businessAddress\": \"789 Dealer Ave, Chicago, IL\",\n  \"licenseNumber\": \"DEAL123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dealers/register",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('auth_token', response.token);",
+                  "    pm.environment.set('dealer_id', response.dealer.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Dealer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"dealer@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dealers/login",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('auth_token', response.token);",
+                  "    pm.environment.set('dealer_id', response.dealer.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Dealer Profile",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/dealers/profile",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Dealer Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Dealer Updated\",\n  \"businessName\": \"Premium Auto Dealers Updated\",\n  \"businessAddress\": \"789 Updated Dealer Ave, Chicago, IL\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dealers/profile",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Create Dealer Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"New Auto Dealership\",\n  \"businessAddress\": \"123 New Dealer St, Miami, FL\",\n  \"businessPhone\": \"+1555123456\",\n  \"licenseNumber\": \"NEWDEAL789\",\n  \"website\": \"https://newautodealership.com\",\n  \"description\": \"Premium car dealership with 20+ years experience\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dealers/profile/create",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "profile", "create"]
+            }
+          }
+        },
+        {
+          "name": "Get Dealer Dashboard",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/dealers/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Get Dealer Stats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/dealers/stats",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Get Dealer Performance",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/dealers/performance",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "performance"]
+            }
+          }
+        },
+        {
+          "name": "Get Dealer Lots",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/dealers/lots",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "lots"]
+            }
+          }
+        },
+        {
+          "name": "Create Dealer Lot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lotName\": \"Downtown Auto Lot\",\n  \"brandsOffered\": [\"Toyota\", \"Honda\", \"Ford\"],\n  \"subscriptionPlan\": \"premium\",\n  \"assignedManager\": \"{{user_id}}\",\n  \"showroomLocations\": [\n    {\n      \"name\": \"Main Showroom\",\n      \"address\": \"123 Main St, Downtown\",\n      \"phone\": \"+1234567890\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dealers/lots",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "lots"]
+            }
+          }
+        },
+        {
+          "name": "Get Dealer Lot",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/dealers/lots/{{lot_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "lots", "{{lot_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Dealer Lot",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lotName\": \"Downtown Auto Lot Updated\",\n  \"brandsOffered\": [\"Toyota\", \"Honda\", \"Ford\", \"BMW\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dealers/lots/{{lot_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "lots", "{{lot_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Dealer Lot",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/dealers/lots/{{lot_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "lots", "{{lot_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Dealer Billing",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/dealers/billing?status=pending&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "billing"],
+              "query": [
+                { "key": "status", "value": "pending" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Billing Record",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 299.99,\n  \"description\": \"Monthly subscription fee\",\n  \"dueDate\": \"2024-12-31\",\n  \"serviceType\": \"subscription\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dealers/billing",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "billing"]
+            }
+          }
+        },
+        {
+          "name": "Update Billing Record",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 349.99,\n  \"description\": \"Updated monthly subscription fee\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dealers/billing/{{billing_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "billing", "{{billing_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Mark Billing as Paid",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"credit_card\",\n  \"transactionId\": \"TXN123456789\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/dealers/billing/{{billing_id}}/pay",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "billing", "{{billing_id}}", "pay"]
+            }
+          }
+        },
+        {
+          "name": "Get Billing Summary",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/dealers/billing/summary",
+              "host": ["{{base_url}}"],
+              "path": ["dealers", "billing", "summary"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bidding System",
+      "item": [
+        {
+          "name": "Place Bid",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 22000,\n  \"message\": \"Interested in this vehicle, cash buyer\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/bids/car/{{car_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["bids", "car", "{{car_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('bid_id', response.bid._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Car Bids",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/bids/car/{{car_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["bids", "car", "{{car_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get User Bids",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/bids/my-bids",
+              "host": ["{{base_url}}"],
+              "path": ["bids", "my-bids"]
+            }
+          }
+        },
+        {
+          "name": "Respond to Bid",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"accept\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/bids/{{bid_id}}/respond",
+              "host": ["{{base_url}}"],
+              "path": ["bids", "{{bid_id}}", "respond"]
+            }
+          }
+        },
+        {
+          "name": "Counter Bid",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"counter\",\n  \"counterAmount\": 24000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/bids/{{bid_id}}/respond",
+              "host": ["{{base_url}}"],
+              "path": ["bids", "{{bid_id}}", "respond"]
+            }
+          }
+        },
+        {
+          "name": "Withdraw Bid",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/bids/{{bid_id}}/withdraw",
+              "host": ["{{base_url}}"],
+              "path": ["bids", "{{bid_id}}", "withdraw"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Offers System",
+      "item": [
+        {
+          "name": "Make Offer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 23000,\n  \"message\": \"Serious buyer with financing pre-approved\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/offers/car/{{car_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["offers", "car", "{{car_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('offer_id', response.offer._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Car Offers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/offers/car/{{car_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["offers", "car", "{{car_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get User Offers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/offers/my-offers",
+              "host": ["{{base_url}}"],
+              "path": ["offers", "my-offers"]
+            }
+          }
+        },
+        {
+          "name": "Respond to Offer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"accept\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/offers/{{offer_id}}/respond",
+              "host": ["{{base_url}}"],
+              "path": ["offers", "{{offer_id}}", "respond"]
+            }
+          }
+        },
+        {
+          "name": "Negotiate Offer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Can you do $24,000?\",\n  \"amount\": 24000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/offers/{{offer_id}}/negotiate",
+              "host": ["{{base_url}}"],
+              "path": ["offers", "{{offer_id}}", "negotiate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat System",
+      "item": [
+        {
+          "name": "Get User Chats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/chat",
+              "host": ["{{base_url}}"],
+              "path": ["chat"]
+            }
+          }
+        },
+        {
+          "name": "Create Chat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"participantId\": \"{{seller_id}}\",\n  \"carId\": \"{{car_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chat",
+              "host": ["{{base_url}}"],
+              "path": ["chat"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('chat_id', response._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Chat Messages",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/chat/{{chat_id}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["chat", "{{chat_id}}", "messages"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reservations",
+      "item": [
+        {
+          "name": "Create Reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reservationDate\": \"2024-12-25T14:00:00.000Z\",\n  \"timeSlot\": \"2:00 PM - 3:00 PM\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reservations/car/{{car_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "car", "{{car_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('reservation_id', response._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get User Reservations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/reservations/my-reservations",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "my-reservations"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Reservation",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "{{reservation_id}}", "cancel"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "Get Car Reviews",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/reviews/car/{{car_id}}?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["reviews", "car", "{{car_id}}"],
+              "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "10" }]
+            }
+          }
+        },
+        {
+          "name": "Create Car Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Excellent car, very well maintained and exactly as described!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reviews/car/{{car_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["reviews", "car", "{{car_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inquiries",
+      "item": [
+        {
+          "name": "Create Car Inquiry",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Hi, I'm interested in this car. Is it still available?\",\n  \"contactMethod\": \"phone\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/inquiries/car/{{car_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["inquiries", "car", "{{car_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('inquiry_id', response._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Received Inquiries",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/inquiries/received?status=pending&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["inquiries", "received"],
+              "query": [
+                { "key": "status", "value": "pending" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Sent Inquiries",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/inquiries/sent?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["inquiries", "sent"],
+              "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "10" }]
+            }
+          }
+        },
+        {
+          "name": "Respond to Inquiry",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Yes, the car is still available. Would you like to schedule a viewing?\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/inquiries/{{inquiry_id}}/respond",
+              "host": ["{{base_url}}"],
+              "path": ["inquiries", "{{inquiry_id}}", "respond"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mechanic Module",
+      "item": [
+        {
+          "name": "Register Mechanic",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"Expert Auto Repair\",\n  \"email\": \"mechanic@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mechanics/register",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('auth_token', response.token);",
+                  "    pm.environment.set('mechanic_id', response.mechanic.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Mechanic",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"mechanic@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mechanics/login",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('auth_token', response.token);",
+                  "    pm.environment.set('mechanic_id', response.mechanic.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Mechanic Profile",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/mechanics/profile",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Mechanic Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"Expert Auto Repair Updated\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mechanics/profile",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Create Mechanic Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"New Auto Repair Shop\",\n  \"businessAddress\": \"456 Repair St, Phoenix, AZ\",\n  \"businessPhone\": \"+1555987654\",\n  \"licenseNumber\": \"MECH789012\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mechanics/profile/create",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "profile", "create"]
+            }
+          }
+        },
+        {
+          "name": "Update Business Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"Updated Auto Repair Shop\",\n  \"businessAddress\": \"789 Updated Repair Ave, Phoenix, AZ\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mechanics/profile/business",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "profile", "business"]
+            }
+          }
+        },
+        {
+          "name": "Get Inspection Requests",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/mechanics/inspections?status=pending",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "inspections"],
+              "query": [{ "key": "status", "value": "pending" }]
+            }
+          }
+        },
+        {
+          "name": "Create Inspection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"carId\": \"{{car_id}}\",\n  \"customerId\": \"{{user_id}}\",\n  \"inspectionType\": \"pre_purchase\",\n  \"scheduledDate\": \"2024-12-25T10:00:00.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mechanics/inspections",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "inspections"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('inspection_id', response._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Inspection",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_progress\",\n  \"notes\": \"Starting inspection process\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mechanics/inspections/{{inspection_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "inspections", "{{inspection_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Complete Inspection",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"overallRating\": 8,\n  \"recommendations\": [\"Replace brake pads\", \"Oil change needed\"],\n  \"mechanicNotes\": \"Overall good condition with minor maintenance needed\",\n  \"estimatedRepairCost\": 350\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mechanics/inspections/{{inspection_id}}/complete",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "inspections", "{{inspection_id}}", "complete"]
+            }
+          }
+        },
+        {
+          "name": "Get Mechanic Billing",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/mechanics/billing?status=pending&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "billing"],
+              "query": [
+                { "key": "status", "value": "pending" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Billing Record",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"carId\": \"{{car_id}}\",\n  \"customerId\": \"{{user_id}}\",\n  \"serviceType\": \"inspection\",\n  \"amount\": 150,\n  \"serviceDescription\": \"Pre-purchase vehicle inspection\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mechanics/billing",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "billing"]
+            }
+          }
+        },
+        {
+          "name": "Update Billing Record",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 175,\n  \"serviceDescription\": \"Updated inspection with additional checks\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mechanics/billing/{{billing_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["mechanics", "billing", "{{billing_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Towing Module",
+      "item": [
+        {
+          "name": "Register Towing Service",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"Quick Tow Services\",\n  \"email\": \"towing@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/towing/register",
+              "host": ["{{base_url}}"],
+              "path": ["towing", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('auth_token', response.token);",
+                  "    pm.environment.set('towing_id', response.towing.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Towing Service",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"towing@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/towing/login",
+              "host": ["{{base_url}}"],
+              "path": ["towing", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('auth_token', response.token);",
+                  "    pm.environment.set('towing_id', response.towing.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Towing Profile",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/towing/profile",
+              "host": ["{{base_url}}"],
+              "path": ["towing", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Towing Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"Quick Tow Services Updated\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/towing/profile",
+              "host": ["{{base_url}}"],
+              "path": ["towing", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Create Towing Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"New Towing Company\",\n  \"businessAddress\": \"321 Tow Ave, Miami, FL\",\n  \"businessPhone\": \"+1444555666\",\n  \"licenseNumber\": \"TOW456789\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/towing/profile/create",
+              "host": ["{{base_url}}"],
+              "path": ["towing", "profile", "create"]
+            }
+          }
+        },
+        {
+          "name": "Update Business Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"Updated Towing Company\",\n  \"businessAddress\": \"654 Updated Tow St, Miami, FL\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/towing/profile/business",
+              "host": ["{{base_url}}"],
+              "path": ["towing", "profile", "business"]
+            }
+          }
+        },
+        {
+          "name": "Get Transport Requests",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/towing/requests?status=pending",
+              "host": ["{{base_url}}"],
+              "path": ["towing", "requests"],
+              "query": [{ "key": "status", "value": "pending" }]
+            }
+          }
+        },
+        {
+          "name": "Create Transport Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"carId\": \"{{car_id}}\",\n  \"customerId\": \"{{user_id}}\",\n  \"pickupLocation\": \"123 Pickup St, Miami, FL\",\n  \"dropoffLocation\": \"456 Dropoff Ave, Orlando, FL\",\n  \"requestedDate\": \"2024-12-25T09:00:00.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/towing/requests",
+              "host": ["{{base_url}}"],
+              "path": ["towing", "requests"]
+            }
+          }
+        },
+        {
+          "name": "Update Transport Request",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_progress\",\n  \"notes\": \"Vehicle picked up, en route to destination\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/towing/requests/{{request_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["towing", "requests", "{{request_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Complete Transport Request",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completionNotes\": \"Vehicle delivered successfully\",\n  \"finalCost\": 250\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/towing/requests/{{request_id}}/complete",
+              "host": ["{{base_url}}"],
+              "path": ["towing", "requests", "{{request_id}}", "complete"]
+            }
+          }
+        },
+        {
+          "name": "Get Towing Billing",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/towing/billing?status=pending&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["towing", "billing"],
+              "query": [
+                { "key": "status", "value": "pending" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Billing Record",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{user_id}}\",\n  \"serviceType\": \"transport\",\n  \"amount\": 200,\n  \"serviceDescription\": \"Vehicle transport from Miami to Orlando\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/towing/billing",
+              "host": ["{{base_url}}"],
+              "path": ["towing", "billing"]
+            }
+          }
+        },
+        {
+          "name": "Update Billing Record",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 225,\n  \"serviceDescription\": \"Updated transport with additional services\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/towing/billing/{{billing_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["towing", "billing", "{{billing_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Car Valuation",
+      "item": [
+        {
+          "name": "Get Car Valuation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"make\": \"Toyota\",\n  \"model\": \"Camry\",\n  \"year\": 2020,\n  \"mileage\": 25000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/valuations/estimate",
+              "host": ["{{base_url}}"],
+              "path": ["valuations", "estimate"]
+            }
+          }
+        },
+        {
+          "name": "Get Valuation History",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/valuations/history?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["valuations", "history"],
+              "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "10" }]
+            }
+          }
+        },
+        {
+          "name": "Get Market Trends",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/valuations/market-trends",
+              "host": ["{{base_url}}"],
+              "path": ["valuations", "market-trends"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Server Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
