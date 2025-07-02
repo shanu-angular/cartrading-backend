@@ -6,7 +6,7 @@ const { createServer } = require("http")
 const { Server } = require("socket.io")
 const path = require("path")
 const jwt = require("jsonwebtoken")
-
+const fs = require('fs');
 // Load environment variables
 dotenv.config()
 
@@ -49,6 +49,199 @@ app.use((req, res, next) => {
   next()
 })
 
+
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
+
+// API endpoint to get images from upload folder
+app.get('/api/images/:category?/:filename?', (req, res) => {
+  try {
+    const { category, filename } = req.params
+    
+    // If no parameters, return list of available categories
+    if (!category) {
+      const uploadsPath = path.join(__dirname, 'uploads')
+      
+      if (!fs.existsSync(uploadsPath)) {
+        return res.status(404).json({
+          success: false,
+          message: 'Uploads directory not found'
+        })
+      }
+      
+      const categories = fs.readdirSync(uploadsPath, { withFileTypes: true })
+        .filter(dirent => dirent.isDirectory())
+        .map(dirent => dirent.name)
+      
+      return res.json({
+        success: true,
+        data: {
+          categories,
+          baseUrl: `${req.protocol}://${req.get('host')}/uploads`
+        }
+      })
+    }
+    
+    // If category but no filename, return list of images in category
+    if (category && !filename) {
+      const categoryPath = path.join(__dirname, 'uploads', category)
+      
+      if (!fs.existsSync(categoryPath)) {
+        return res.status(404).json({
+          success: false,
+          message: `Category '${category}' not found`
+        })
+      }
+      
+      const images = fs.readdirSync(categoryPath)
+        .filter(file => {
+          const ext = path.extname(file).toLowerCase()
+          return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext)
+        })
+        .map(image => ({
+          filename: image,
+          url: `${req.protocol}://${req.get('host')}/uploads/${category}/${image}`,
+          path: `/uploads/${category}/${image}`
+        }))
+      
+      return res.json({
+        success: true,
+        data: {
+          category,
+          images,
+          count: images.length
+        }
+      })
+    }
+    
+    // If both category and filename, serve specific image info
+    if (category && filename) {
+      const imagePath = path.join(__dirname, 'uploads', category, filename)
+      
+      if (!fs.existsSync(imagePath)) {
+        return res.status(404).json({
+          success: false,
+          message: 'Image not found'
+        })
+      }
+      
+      const stats = fs.statSync(imagePath)
+      const imageInfo = {
+        filename,
+        category,
+        url: `${req.protocol}://${req.get('host')}/uploads/${category}/${filename}`,
+        path: `/uploads/${category}/${filename}`,
+        size: stats.size,
+        created: stats.birthtime,
+        modified: stats.mtime
+      }
+      
+      return res.json({
+        success: true,
+        data: imageInfo
+      })
+    }
+    
+  } catch (error) {
+    console.error('Error retrieving images:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Server error while retrieving images',
+      error: error.message
+    })
+  }
+})
+
+// API endpoint to delete images
+app.delete('/api/images/:category/:filename', (req, res) => {
+  try {
+    const { category, filename } = req.params
+    const imagePath = path.join(__dirname, 'uploads', category, filename)
+    
+    if (!fs.existsSync(imagePath)) {
+      return res.status(404).json({
+        success: false,
+        message: 'Image not found'
+      })
+    }
+    
+    fs.unlinkSync(imagePath)
+    
+    res.json({
+      success: true,
+      message: 'Image deleted successfully',
+      data: {
+        category,
+        filename,
+        deletedPath: `/uploads/${category}/${filename}`
+      }
+    })
+    
+  } catch (error) {
+    console.error('Error deleting image:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Server error while deleting image',
+      error: error.message
+    })
+  }
+})
+
+// API endpoint to get image metadata
+app.get('/api/images/:category/:filename/info', (req, res) => {
+  try {
+    const { category, filename } = req.params
+    const imagePath = path.join(__dirname, 'uploads', category, filename)
+    
+    if (!fs.existsSync(imagePath)) {
+      return res.status(404).json({
+        success: false,
+        message: 'Image not found'
+      })
+    }
+    
+    const stats = fs.statSync(imagePath)
+    const ext = path.extname(filename).toLowerCase()
+    
+    const imageInfo = {
+      filename,
+      category,
+      extension: ext,
+      size: stats.size,
+      sizeFormatted: formatBytes(stats.size),
+      created: stats.birthtime,
+      modified: stats.mtime,
+      url: `${req.protocol}://${req.get('host')}/uploads/${category}/${filename}`,
+      path: `/uploads/${category}/${filename}`
+    }
+    
+    res.json({
+      success: true,
+      data: imageInfo
+    })
+    
+  } catch (error) {
+    console.error('Error getting image info:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Server error while getting image info',
+      error: error.message
+    })
+  }
+})
+
+// Helper function to format bytes
+function formatBytes(bytes, decimals = 2) {
+  if (bytes === 0) return '0 Bytes'
+  
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+}
 // Basic test route
 app.get("/", (req, res) => {
   res.send(`
